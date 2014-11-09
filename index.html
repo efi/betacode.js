@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>title</title>
+  <script type="text/javascript" language="Javascript" src="unorm.js"></script>
+  <script type="text/javascript" language="Javascript" src="betacode.js"></script>
+  <script type="text/javascript">
+    var converter = new Beta();
+    converter.tagFault=true;
+    function type(text, n){
+      if (n <= (text.length)){
+        document.getElementById("input").value=text.substring(0, n++);
+        transform();
+        setTimeout(function(){ type(text, n) }, Math.max(5,10+(10-n/20.0)));
+      }
+    }
+    function transform(){
+      before=Date.now();
+      result=converter.convert(document.getElementById("input").value);
+      document.getElementById("output").textContent=unorm.nfc(result[0]);
+      after=Date.now();
+      document.getElementById("output").innerHTML=document.getElementById("output").innerHTML.replace(/&lt;fault&gt;/g,"<span class=\"fault\">").replace(/&lt;\/fault&gt;/g,"</span>").replace(/\n/g,"<br />");
+      document.getElementById("console").textContent="Converted"+("      "+document.getElementById("input").value.length).substr(-5)+" input characters in"+("    "+(after-before)).substr(-3)+" millisecond"+(after-before==1?" ":"s")+" with"+(result[1]==0?"out":" "+result[1]+" character")+" error"+(result[1]==1?"":"s")+"."
+    }
+    function strToUnicodeCodepoints(s){ a=[]; for (i in s) a.push("\\u"+("0000"+s.charCodeAt(i).toString(16)).substr(-4,4)); return a.join(""); }
+    function load(){
+      i=document.getElementById("input");
+      i.ondragend=i.onpaste=i.onkeyup=i.onchange=transform;
+      setTimeout(function(){
+        type((document.getElementById("input").value),10);
+        default_converter=new Beta();
+        p=[];f=[];for(member in b=new Beta()){ if (member=="input"||member=="version") continue; "function"==typeof b[member]?f.push("<span title=\"'string' == typeof "+member+"('input');\">function <strong>"+member+"</strong>(string){ &hellip; };</span>"):p.push("<span title=\"'"+(typeof default_converter[member])+"' == typeof "+member+"\">var <strong>"+member+"</strong> = "+(("string"==typeof default_converter[member])?("\""+strToUnicodeCodepoints(default_converter[member])+"\";</span> <span class=\"comment\">// "+default_converter[member]+""):default_converter[member]+";")+"</span>");};
+        document.getElementById("api").innerHTML="<h3>Functions</h3><ul><li>"+f.sort().join("</li><li>")+"</li></ul><h3>Default values of properties</h3><ul><li>"+p.sort().join("</li><li>")+"</li></ul>"
+      },1);
+      document.getElementById("usage").textContent = "Usage (current version '"+new Beta().version+"')"
+    }
+    (function(){
+      var interval=setInterval(function(){
+        if(document.readyState == "complete"){
+          load();
+          clearInterval(interval)
+        }
+      },11)
+    })();
+  </script>
+  <link href='http://fonts.googleapis.com/css?family=Cousine:400,700,700italic,400italic&amp;subset=latin,greek-ext' rel='stylesheet' type='text/css'>
+  <style type="text/css">
+    html { box-shadow: inset -5px -5px 20px -2px rgba(0,0,0,0.25), inset 0 0 100px 2px rgba(0,64,0,0.5) }
+    body { background-color:rgb(100,200,0); background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAUCAQAAADv7D9QAAAAU0lEQVR4ASXKsQnEUBDEUHXp7DIzZTj8RbjZsxDLCBYeu3a8XezZb+fbw+69O99uvgReVHlUeVR5VHlMHlVee/IE9Kh6UeVR5VEFMHlUeVR5BPk/NtBZa8qXpEYAAAAASUVORK5CYII=); text-align:center;}
+    body, textarea { font-family: 'Cousine', sans-serif; }
+    .light { font-weight:400; }
+    #container {
+      padding: 32px;
+      width: 960px;
+      margin:auto;
+      display:block;
+      text-align:left;
+      background-color: rgba(255,255,255,0.8);
+      border-radius: 4px;
+      box-shadow : 6px 6px 1px rgba(0,0,0,0.1), 8px 8px 4px rgba(0,0,0,0.1), inset 1px 1px 0 white;
+      margin-bottom: 5em;
+      padding-top: 24px;
+    }
+    h1 { margin:0; padding:0; }
+    h1 {
+      font-size: 40pt;
+      text-shadow: 3px 3px 1px rgba(0,0,0,0.1), 5px 5px 5px rgba(0,0,0,0.1), -1px -1px 0 rgba(255,255,255,0.2);
+      color: rgb(50,100,0);
+      width: 100%;
+      border-bottom: 3px double white;
+    }
+    .tagline {
+      margin: -1em 0 1em 2em;
+      display:block;
+      text-shadow:0 0 1px white,0 0 2px white,0 0 3px white;
+    }
+    #input,#output {
+      margin:0;
+      padding: 28px 16px 16px 16px;
+      outline: none;
+      resize: none;
+      border: 3px double white; border-radius: 5px;
+      background-color: transparent;
+      font-size: 16px;
+      width: 922px;
+      height: 6em;
+      display:block;
+      overflow: auto;
+      /*line-height: 1.375em;
+      letter-spacing: -0.025ex;
+      word-spacing: 0.2ex;*/
+    }
+    #input{ border-width: 3px 3px 1px 3px; margin-bottom: 1px; }
+    #output{ border-width: 1px 3px 3px 3px; word-wrap: break-word; }
+    #input:hover{background-color:rgba(255,255,255,0.5);}
+    #textarea:before, #outputarea:before {
+      font-size: 10px;
+      position:absolute;
+      text-shadow:0 0 1px white,0 0 2px white,0 0 3px white;
+      background-color: rgba(255,255,255,0.8);
+      padding: 3px 6px;
+      border-radius: 2px 0 3px 0;
+    }
+    #textarea:before {
+      content:'Input (can be Unicode, Betacode or SPIonic)';
+      margin-top: 3px;
+      margin-left:3px;
+    }
+    #outputarea:before {
+      content:'Output';
+      margin-top: 1px;
+      margin-left:3px;
+    }
+    #console {
+      text-align: center;
+      font-size: 14px; 
+    }
+    .fault {
+      background-color: rgba(255,64,64,0.75);
+      padding: 3px 1px 1px 1px;
+      margin: -4px -2px -2px -2px;
+      box-shadow: 0 0 4px 2px rgba(255,64,64,0.5);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 3px;
+    }
+    .comment { opacity:0.5; }
+    a { color: rgb(50,100,0); font-style: italic; }
+    ul li { margin-top: 0.5ex; }
+    strong { text-shadow: 3px 3px 1px rgba(0,0,0,0.1), 2px 2px 2px rgba(0,0,0,0.1), -1px -1px 0 rgba(255,255,255,0.2); color: rgb(50,100,0); }
+  </style>
+</head>
+<body>
+<div id="container">
+  <a href="https://github.com/exchange-projekt/betacode.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+  <h1><span class="light">beta</span>code.js</h1>
+  <small class="tagline">Betacode/SPIonic &#8644; Unicode</small>
+  <h2>Demo</h2>
+  <div id="textarea"><textarea autocomplete="off" autocapitalize="off" autocorrect="off" id="input">*oi( de\ *foi/nikes ou(=toi oi( su\n *ka/dmw| a)piko/menoi, tw=n h)=san oi( *gefurai=oi, a)/lla te polla\ oi)kh/santes tau/thn th\n xw/rhn e)sh/gagon didaska/lia e)s tou\s *(/ellhnas kai\ dh\ kai\ gra/mmata, ou)k e)o/nta pri\n *(/ellhsi w(s e)moi\ doke/ein, prw=ta me\n toi=si kai\ a(/pantes xre/wntai *foi/nikes: meta\ de\ xro/nou probai/nontos a(/ma th=| fwnh=| mete/ballon kai\ to\n r(uqmo\n tw=n gramma/twn.</textarea></div>
+  <div id="outputarea"><div id="output"></div></div>
+  <pre id="console"></pre>
+  <h2 id="usage">Usage</h2>
+  After including the library in your HTML file or server side Javascript project, create a 'new&nbsp;<strong>Beta</strong>()' instance and call one of the functions below. The '<strong>convert</strong>' function auto-detects the expected conversion direction and returns the converted string. In most cases it's as simple as that.
+  <div id="api">Will be filled in by JavaScript magic as soon as the page renders.</div>
+  <h2>Sources</h2>
+  You can find the sources on <a href="https://github.com/exchange-projekt/betacode.js">Github (https://github.com/exchange-projekt/betacode.js)</a>.
+  <h2>Requirements</h2>
+  No other library is needed to run betacode.js! Only one (weak) dependency exists: It is recommended to include <a href="https://github.com/walling/unorm">unorm</a>. It is already included in this repository for your convenience.
+  <h2>License</h2>
+
+<pre>The MIT License (MIT)
+
+Copyright (c) 2008-2013 Matsuza &lt;matsuza@gmail.com&gt;, Bjarke Walling &lt;bwp@bwp.dk&gt; for unorm.js
+Copyright (c) 2014 Peggy Lucke &amp; Thomas Efer &lt;mail@thomasefer.de&gt; for betacode.js
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</pre>
+</div>
+
+</body>
+</html>
